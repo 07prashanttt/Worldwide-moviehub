@@ -29,7 +29,7 @@
       box-shadow: 0 0 10px rgba(168, 85, 247, 0.5); text-transform: uppercase;
     }
 
-    .search-box { display: flex; gap: 6px; flex-grow: 1; max-width: 320px; }
+    .search-box { display: flex; gap: 6px; flex-grow: 1; max-width: 350px; }
     .search-box input {
       background: #1f2937; border: 1px solid #374151; padding: 8px 12px;
       border-radius: 6px; color: #fff; font-size: 13px; width: 100%; outline: none;
@@ -41,7 +41,7 @@
 
     .container { max-width: 1200px; margin: 15px auto; padding: 0 12px; }
     .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-    .section-title { font-size: 16px; border-left: 4px solid #2563eb; padding-left: 10px; font-weight: 600; }
+    .section-title { font-size: 16px; border-left: 4px solid #3b82f6; padding-left: 10px; font-weight: 600; }
     .movie-count { font-size: 12px; color: #9ca3af; }
 
     .movie-grid {
@@ -69,6 +69,12 @@
 
     .movie-info { padding: 8px 10px; flex-grow: 1; }
     .movie-title { font-size: 12px; font-weight: 600; height: 34px; overflow: hidden; color: #f3f4f6; }
+
+    .load-more-btn {
+      display: block; width: 220px; margin: 25px auto; padding: 12px;
+      background: #2563eb; color: #fff; border: none; border-radius: 20px;
+      font-weight: 600; cursor: pointer; text-align: center; font-size: 14px;
+    }
 
     .modal {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -109,7 +115,7 @@
       <span class="built-badge">★ Built by Prashant ★</span>
     </div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search movies...">
+      <input type="text" id="searchInput" placeholder="Search any movie in the world...">
       <button onclick="searchMovies()">Search</button>
     </div>
   </header>
@@ -120,6 +126,7 @@
       <span class="movie-count" id="movieCount">Loaded: 0 movies</span>
     </div>
     <div class="movie-grid" id="movieGrid"></div>
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreMovies()">Load More Movies</button>
   </div>
 
   <div class="modal" id="movieModal">
@@ -141,34 +148,28 @@
   </div>
 
   <script>
-    // Massive Embedded Movie Database taaki screen par turant movies aayein aur search bhi 100% chale
-    const masterMovies = [
-      { id: 76600, title: "Avatar: The Way of Water (Dual Audio)", poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", rating: "7.7", desc: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora." },
-      { id: 299534, title: "Avengers: Endgame (Hindi Dubbed)", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", rating: "8.3", desc: "After the devastating events of Infinity War, the universe is in ruins." },
-      { id: 872585, title: "Oppenheimer (2026)", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", rating: "8.1", desc: "The story of American scientist J. Robert Oppenheimer and the atomic bomb." },
-      { id: 603692, title: "John Wick: Chapter 4", poster: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg", rating: "7.8", desc: "John Wick uncovers a path to defeating The High Table." },
-      { id: 569094, title: "Spider-Man: Across the Spider-Verse", poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", rating: "8.4", desc: "Brooklyn's friendly neighborhood Spider-Man across the Multiverse." },
-      { id: 848326, title: "Rebel Moon - Part One", poster: "https://image.tmdb.org/t/p/w500/ui4DrH1cKk2vkHshcUcGt2lKxCm.jpg", rating: "6.5", desc: "When a peaceful colony on the edge of a galaxy finds itself threatened." },
-      { id: 385687, title: "Fast X (Fast & Furious 10)", poster: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", rating: "7.2", desc: "Dom Toretto and his family face their deadliest enemy yet." },
-      { id: 640146, title: "Ant-Man and the Wasp: Quantumania", poster: "https://image.tmdb.org/t/p/w500/ngl2FKBlU4fhbdsrtdom9LVLBXw.jpg", rating: "6.5", desc: "Super-Hero partners Scott Lang and Hope Van Dyne explore the Quantum Realm." },
-      { id: 507089, title: "Five Nights at Freddy's", poster: "https://image.tmdb.org/t/p/w500/A4j8S6moJS2zNtRR8oWF08grnL5.jpg", rating: "7.8", desc: "A troubled security guard begins working at Freddy Fazbear's Pizza." },
-      { id: 939335, title: "M3GAN", poster: "https://image.tmdb.org/t/p/w500/d9nBoowhjiiYc4FBNtQkPY7c81H.jpg", rating: "7.3", desc: "A robotics engineer at a toy company builds a life-like doll." },
-      { id: 677179, title: "Creed III", poster: "https://image.tmdb.org/t/p/w500/cvsXj3IQgQCVV7A02Y4v2g.jpg", rating: "7.2", desc: "Adonis Creed has been thriving in both his career and family life." },
-      { id: 315162, title: "Puss in Boots: The Last Wish", poster: "https://image.tmdb.org/t/p/w500/kuf6dutpsT0vSVehic3EZIqkOBt.jpg", rating: "8.3", desc: "Puss in Boots discovers that his passion for adventure has taken its toll." },
-      { id: 436969, title: "The Suicide Squad", poster: "https://image.tmdb.org/t/p/w500/wTS3Hn43EPgDkTVwXO3SALxQYc.jpg", rating: "7.6", desc: "Welcome to hell—a.k.a. Belle Reve, the prison with the highest death rate." },
-      { id: 545611, title: "Everything Everywhere All at Once", poster: "https://image.tmdb.org/t/p/w500/w3LxiVYdWWRvEVdn5RYq6jIqkb1.jpg", rating: "7.9", desc: "A middle-aged Chinese immigrant is swept up into an insane adventure." },
-      { id: 634649, title: "Spider-Man: No Way Home", poster: "https://image.tmdb.org/t/p/w500/1g0dhYtq4hrz1GPvL7LgDMaL5jd.jpg", rating: "8.0", desc: "With Spider-Man's identity now revealed, Peter asks Doctor Strange for help." },
-      { id: 438631, title: "Dune: Part One", poster: "https://image.tmdb.org/t/p/w500/d5NXSklXo0qyIYkgV94XAgMIckC.jpg", rating: "7.9", desc: "A noble family becomes embroiled in a war for control over the galaxy's most valuable asset." },
-      { id: 693134, title: "Dune: Part Two", poster: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY0SCNxlp.jpg", rating: "8.2", desc: "Paul Atreides unites with Chani and the Fremen while seeking revenge against the conspirators." },
-      { id: 5, title: "Four Rooms", poster: "https://image.tmdb.org/t/p/w500/75aHnDWNs7fiS9W6bKHMNrJ1b8r.jpg", rating: "5.8", desc: "It's Ted the Bellhop's first night on the job..." },
-      { id: 11, title: "Star Wars", poster: "https://image.tmdb.org/t/p/w500/6FfCtAuVAW8XJjZ7eWLibRLWTz3.jpg", rating: "8.2", desc: "Princess Leia is captured and held hostage by the evil Imperial forces." },
-      { id: 12, title: "Finding Nemo", poster: "https://image.tmdb.org/t/p/w500/eHuGQ10FUzK1mdOY69wF5pGgEf5.jpg", rating: "7.8", desc: "Nemo is unexpectedly taken from his ocean home." }
-    ];
-
+    const API_KEY = '3fd2be6f0cd050106db617d301003523';
     const movieGrid = document.getElementById('movieGrid');
     const movieCount = document.getElementById('movieCount');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
     const movieModal = document.getElementById('movieModal');
     const videoPlayer = document.getElementById('videoPlayer');
+
+    let allMovies = [];
+    let pageNum = 1;
+    let isSearching = false;
+
+    // Guaranteed instant backup catalog so screen is never empty
+    const backupCatalog = [
+      { id: 76600, title: "Avatar: The Way of Water", poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", rating: "7.7", desc: "Jake Sully lives with his newfound family formed on Pandora." },
+      { id: 299534, title: "Avengers: Endgame", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", rating: "8.3", desc: "After the devastating events of Infinity War." },
+      { id: 872585, title: "Oppenheimer", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", rating: "8.1", desc: "The story of J. Robert Oppenheimer." },
+      { id: 603692, title: "John Wick: Chapter 4", poster: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg", rating: "7.8", desc: "John Wick uncovers a path to defeating The High Table." },
+      { id: 569094, title: "Spider-Man: Across the Spider-Verse", poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", rating: "8.4", desc: "Brooklyn's friendly neighborhood Spider-Man across the Multiverse." },
+      { id: 385687, title: "Fast X", poster: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", rating: "7.2", desc: "Dom Toretto and his family face their deadliest enemy yet." },
+      { id: 634649, title: "Spider-Man: No Way Home", poster: "https://image.tmdb.org/t/p/w500/1g0dhYtq4hrz1GPvL7LgDMaL5jd.jpg", rating: "8.0", desc: "With Spider-Man's identity revealed." },
+      { id: 155, title: "The Dark Knight", poster: "https://image.tmdb.org/t/p/w500/qJ2tW6WMUDux911r6m7haRef0WH.jpg", rating: "8.5", desc: "Batman raises the stakes in his war on crime." }
+    ];
 
     function renderGrid(movies) {
       movieGrid.innerHTML = '';
@@ -196,17 +197,74 @@
       movieCount.textContent = `Total Displayed: ${movies.length} movies`;
     }
 
-    function searchMovies() {
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+    async function fetchCatalog(page) {
+      if (isSearching) return;
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}`);
+        const data = await res.json();
+        if (data && data.results) {
+          const newItems = data.results.map(m => ({
+            id: m.id,
+            title: m.title || m.name,
+            poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image',
+            rating: m.vote_average ? m.vote_average.toFixed(1) : '8.0',
+            desc: m.overview || 'No description available.'
+          }));
+          
+          // Avoid duplicates
+          const existingIds = new Set(allMovies.map(m => m.id));
+          const uniqueItems = newItems.filter(m => !existingIds.has(m.id));
+          allMovies = [...allMovies, ...uniqueItems];
+          
+          if (!isSearching) {
+            renderGrid(allMovies);
+          }
+        }
+      } catch (err) {
+        console.log("Network error, using backup.");
+      }
+    }
+
+    function loadMoreMovies() {
+      if (isSearching) return;
+      pageNum++;
+      fetchCatalog(pageNum);
+      fetchCatalog(pageNum + 1);
+    }
+
+    async function searchMovies() {
+      const query = document.getElementById('searchInput').value.trim();
       if (!query) {
-        renderGrid(masterMovies);
+        isSearching = false;
+        loadMoreBtn.style.display = 'block';
         document.getElementById('headingTitle').textContent = 'World Movie Collection';
+        renderGrid(allMovies);
         return;
       }
 
+      isSearching = true;
+      loadMoreBtn.style.display = 'none';
       document.getElementById('headingTitle').textContent = `Search Results for "${query}"`;
-      const filtered = masterMovies.filter(m => m.title.toLowerCase().includes(query));
-      renderGrid(filtered);
+
+      try {
+        // Global Worldwide Search across millions of movies
+        const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        if (data && data.results) {
+          const searchResults = data.results.map(m => ({
+            id: m.id,
+            title: m.title || m.name,
+            poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image',
+            rating: m.vote_average ? m.vote_average.toFixed(1) : '8.0',
+            desc: m.overview || 'No description available.'
+          }));
+          renderGrid(searchResults);
+        }
+      } catch (err) {
+        // Local fallback search
+        const filtered = allMovies.filter(m => m.title.toLowerCase().includes(query.toLowerCase()));
+        renderGrid(filtered);
+      }
     }
 
     function openModal(movie) {
@@ -245,8 +303,12 @@
       if (e.target === movieModal) closeModal();
     };
 
-    // Initial load
-    renderGrid(masterMovies);
+    // Initial load: load backup and multiple live pages instantly
+    allMovies = backupCatalog;
+    renderGrid(allMovies);
+    fetchCatalog(1);
+    fetchCatalog(2);
+    fetchCatalog(3);
   </script>
 </body>
 </html>

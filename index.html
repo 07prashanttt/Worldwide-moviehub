@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Movies Hub - Built by Prashant</title>
+  <!-- Google Fonts for stylish Prashant Branding -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background-color: #0b0f19; color: #e2e8f0; font-family: 'Poppins', sans-serif; min-height: 100vh; }
+    
+    /* Top Header Bar */
+    header {
+      background: #111827;
+      padding: 12px 18px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #3b82f6;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      gap: 10px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+      color: #3b82f6;
+      text-decoration: none;
+    }
+    .logo span { color: #e11d48; }
+
+    /* Custom Stylish Prashant Badge */
+    .built-badge {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      background: linear-gradient(135deg, #a855f7, #ec4899);
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 0.8px;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+      text-transform: uppercase;
+    }
+
+    .search-box { display: flex; gap: 6px; flex-grow: 1; max-width: 320px; }
+    .search-box input {
+      background: #1f2937;
+      border: 1px solid #374151;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 13px;
+      width: 100%;
+      outline: none;
+    }
+    .search-box button {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    .container { max-width: 1200px; margin: 15px auto; padding: 0 12px; }
+    
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 16px;
+      border-left: 4px solid #2563eb;
+      padding-left: 10px;
+      font-weight: 600;
+    }
+
+    .movie-count { font-size: 12px; color: #9ca3af; }
+
+    /* Movie Grid Layout */
+    .movie-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media(min-width: 480px) { .movie-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media(min-width: 768px) { .movie-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media(min-width: 1024px) { .movie-grid { grid-template-columns: repeat(5, 1fr); } }
+
+    .movie-card {
+      background: #111827;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #1f2937;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.6);
+    }
+
+    .poster-wrapper {
+      position: relative;
+      width: 100%;
+      padding-top: 145%;
+      background: #1f2937;
+    }
+
+    .poster-wrapper img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .rating-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(225, 29, 72, 0.9);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .movie-info { padding: 8px 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .movie-title { font-size: 12px; font-weight: 600; height: 34px; overflow: hidden; color: #f3f4f6; line-height: 1.3; }
+
+    /* Load More Button */
+    .load-more-btn {
+      display: block;
+      width: 200px;
+      margin: 25px auto;
+      padding: 10px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+    }
+
+    /* Modal Overlay (Player & Download) */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.92);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    .modal-content {
+      background: #111827;
+      border-radius: 10px;
+      max-width: 750px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      border: 1px solid #374151;
+      position: relative;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 8px; right: 12px;
+      font-size: 24px;
+      color: #fff;
+      cursor: pointer;
+      z-index: 20;
+      background: rgba(0,0,0,0.5);
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .video-container {
+      position: relative;
+      padding-bottom: 56.25%;
+      height: 0;
+      background: #000;
+    }
+
+    .video-container iframe {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border: 0;
+    }
+
+    .modal-body { padding: 15px; }
+
+    .download-section {
+      margin-top: 15px;
+      background: #1f2937;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .download-section h4 { color: #10b981; font-size: 13px; margin-bottom: 8px; }
+    
+    .dl-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .dl-btn {
+      background: #2563eb;
+      color: #fff;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .dl-btn.gdrive { background: #059669; }
+    .dl-btn.torrent { background: #d97706; }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header with Prashant Branding -->
+  <header>
+    <div class="brand-group">
+      <a href="#" class="logo">Movie<span>HUB</span></a>
+      <span class="built-badge">★ Built by Prashant ★</span>
+    </div>
+    
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Search any movie worldwide...">
+      <button onclick="searchMovies()">Search</button>
+    </div>
+  </header>
+
+  <!-- Main Catalog Content -->
+  <div class="container">
+    <div class="section-header">
+      <h3 class="section-title" id="headingTitle">World Movie Collection</h3>
+      <span class="movie-count" id="movieCount">Loaded: 0 movies</span>
+    </div>
+
+    <div class="movie-grid" id="movieGrid"></div>
+
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMorePages()">Load More Movies</button>
+  </div>
+
+  <!-- Player & Downloads Modal -->
+  <div class="modal" id="movieModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal()">&times;</span>
+      
+      <div class="video-container">
+        <iframe id="videoPlayer" allowfullscreen src=""></iframe>
+      </div>
+
+      <div class="modal-body">
+        <h3 id="modalTitle" style="font-size: 16px; margin-bottom: 5px;">Movie Title</h3>
+        <p id="modalDesc" style="font-size: 12px; color: #9ca3af; margin-bottom: 10px;"></p>
+
+        <!-- Dynamic HD Links -->
+        <div class="download-section">
+          <h4>📥 Direct Download & Cloud Links</h4>
+          <div class="dl-grid" id="downloadLinks"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_KEY = '3fd2be6f0cd050106db617d301003523';
+    const movieGrid = document.getElementById('movieGrid');
+    const movieCount = document.getElementById('movieCount');
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    const movieModal = document.getElementById('movieModal');
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    let currentPage = 1;
+    let loadedMovies = [];
+
+    // Fetch batch of pages to quickly reach 1000+ movies pool
+    async function loadMoviesBatch(startPage = 1, totalPagesToFetch = 3) {
+      for (let i = 0; i < totalPagesToFetch; i++) {
+        const page = startPage + i;
+        try {
+          const res = await fetch(`https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&sort_by=popularity.desc&page=${page}`);
+          const data = await res.json();
+          if (data && data.results) {
+            loadedMovies = [...loadedMovies, ...data.results];
+          }
+        } catch (err) {
+          console.error("Error loading movies:", err);
+        }
+      }
+      renderGrid(loadedMovies);
+      currentPage += totalPagesToFetch;
+    }
+
+    function renderGrid(movies) {
+      movieGrid.innerHTML = '';
+      if (!movies || movies.length === 0) {
+        movieGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #ef4444;">No movies found.</p>';
+        movieCount.textContent = 'Loaded: 0 movies';
+        return;
+      }
+
+      movies.forEach(movie => {
+        if (!movie.poster_path) return;
+        
+        const card = document.createElement('div');
+        card.className = 'movie-card';
+        const rating = movie.vote_average ? movie.vote_average.toFixed(1) : '8.0';
+
+        card.innerHTML = `
+          <div class="poster-wrapper">
+            <span class="rating-badge">⭐ ${rating}</span>
+            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}">
+          </div>
+          <div class="movie-info">
+            <div class="movie-title">${movie.title}</div>
+          </div>
+        `;
+
+        card.onclick = () => openModal(movie);
+        movieGrid.appendChild(card);
+      });
+
+      movieCount.textContent = `Total Displayed: ${movies.length}+ movies`;
+    }
+
+    function openModal(movie) {
+      document.getElementById('modalTitle').textContent = movie.title;
+      document.getElementById('modalDesc').textContent = movie.overview || "No description available.";
+
+      // Embedded Working Online Stream Server
+      videoPlayer.src = `https://vidsrc.cc/v2/embed/movie/${movie.id}`;
+
+      // Generate Download Links dynamically
+      const q = encodeURIComponent(movie.title);
+      document.getElementById('downloadLinks').innerHTML = `
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">⚡ GDrive 480p</a>
+        <a href="https://terabox.com/search?q=${q}" target="_blank" class="dl-btn">⚡ TeraBox 720p</a>
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">⚡ GDrive 1080p Full HD</a>
+        <a href="https://1337x.to/search/${q}/1/" target="_blank" class="dl-btn torrent">🧲 Torrent 4K Ultra HD</a>
+      `;
+
+      movieModal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      movieModal.style.display = 'none';
+      videoPlayer.src = '';
+    }
+
+    // Global Movie Search Functionality
+    async function searchMovies() {
+      const query = document.getElementById('searchInput').value.trim();
+      if (!query) {
+        document.getElementById('headingTitle').textContent = 'World Movie Collection';
+        renderGrid(loadedMovies);
+        loadMoreBtn.style.display = 'block';
+        return;
+      }
+
+      document.getElementById('headingTitle').textContent = `Search Results for "${query}"`;
+      loadMoreBtn.style.display = 'none';
+
+      try {
+        const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+        renderGrid(data.results);
+      } catch (err) {
+        console.error("Search failed:", err);
+      }
+    }
+
+    function loadMorePages() {
+      loadMoviesBatch(currentPage, 5); // Loads 100 more movies on each click
+    }
+
+    document.getElementById('searchInput').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') searchMovies();
+    });
+
+    // Close Modal on outer tap
+    window.onclick = function(e) {
+      if (e.target === movieModal) closeModal();
+    };
+
+    // Initial Load: Fetch 10 pages (~200 movies instantly, expandable to 1000+)
+    loadMoviesBatch(1, 10);
+  </script>
+</body>
+</html>

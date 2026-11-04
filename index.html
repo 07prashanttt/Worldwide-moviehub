@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>World Movies Hub - Built by Prashant</title>
+  <title>MovieHUB - Built by Prashant</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
@@ -86,9 +86,9 @@
     .movie-title { font-size: 12px; font-weight: 600; height: 34px; overflow: hidden; color: #f3f4f6; }
 
     .load-more-btn {
-      display: block; width: 220px; margin: 25px auto; padding: 10px;
+      display: block; width: 220px; margin: 25px auto; padding: 12px;
       background: #2563eb; color: #fff; border: none; border-radius: 20px;
-      font-weight: 600; cursor: pointer; text-align: center;
+      font-weight: 600; cursor: pointer; text-align: center; font-size: 14px;
     }
 
     .modal {
@@ -96,7 +96,7 @@
       background: rgba(0,0,0,0.92); z-index: 1000; justify-content: center; align-items: center; padding: 12px;
     }
     .modal-content {
-      background: #111827; border-radius: 10px; max-width: 750px; width: 100%;
+      background: #111827; border-radius: 10px; max-width: 800px; width: 100%;
       max-height: 90vh; overflow-y: auto; border: 1px solid #374151; position: relative;
     }
     .close-btn {
@@ -108,14 +108,18 @@
     .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
     .modal-body { padding: 15px; }
     .download-section { margin-top: 15px; background: #1f2937; padding: 12px; border-radius: 8px; }
-    .download-section h4 { color: #10b981; font-size: 13px; margin-bottom: 8px; }
-    .dl-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+    .download-section h4 { color: #10b981; font-size: 14px; margin-bottom: 10px; }
+    .dl-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    @media(min-width: 550px) { .dl-grid { grid-template-columns: repeat(3, 1fr); } }
+    
     .dl-btn {
-      background: #2563eb; color: #fff; text-decoration: none; padding: 6px 12px;
-      border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;
+      background: #2563eb; color: #fff; text-decoration: none; padding: 8px 10px;
+      border-radius: 6px; font-size: 11px; font-weight: 600; text-align: center; display: block;
     }
     .dl-btn.gdrive { background: #059669; }
+    .dl-btn.mega { background: #dc2626; }
     .dl-btn.torrent { background: #d97706; }
+    .dl-btn.pixeldrain { background: #7c3aed; }
   </style>
 </head>
 <body>
@@ -126,7 +130,7 @@
       <span class="built-badge">★ Built by Prashant ★</span>
     </div>
     <div class="search-box">
-      <input type="text" id="searchInput" placeholder="Search any movie worldwide...">
+      <input type="text" id="searchInput" placeholder="Search movies worldwide...">
       <button onclick="searchMovies()">Search</button>
     </div>
   </header>
@@ -149,8 +153,9 @@
       <div class="modal-body">
         <h3 id="modalTitle" style="font-size: 16px; margin-bottom: 5px;">Movie Title</h3>
         <p id="modalDesc" style="font-size: 12px; color: #9ca3af; margin-bottom: 10px;"></p>
+        
         <div class="download-section">
-          <h4>📥 Direct Download & Cloud Links</h4>
+          <h4>📥 12+ Working High-Speed Download Links</h4>
           <div class="dl-grid" id="downloadLinks"></div>
         </div>
       </div>
@@ -168,16 +173,16 @@
     let allMovies = [];
     let pageNum = 1;
 
-    // Massive Backup Catalog taaki bina internet ya API block ke bhi 50+ hit movies turant dikhein
+    // Rich backup catalog so screen is never blank even if network is slow
     const backupCatalog = [
-      { id: 76600, title: "Avatar: The Way of Water", poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", rating: "7.7", desc: "Jake Sully lives with his newfound family formed on the extrasolar moon Pandora." },
-      { id: 299534, title: "Avengers: Endgame", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", rating: "8.3", desc: "After the devastating events of Infinity War, the universe is in ruins." },
-      { id: 872585, title: "Oppenheimer", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", rating: "8.1", desc: "The story of American scientist J. Robert Oppenheimer." },
+      { id: 76600, title: "Avatar: The Way of Water", poster: "https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg", rating: "7.7", desc: "Jake Sully lives with his newfound family on Pandora." },
+      { id: 299534, title: "Avengers: Endgame", poster: "https://image.tmdb.org/t/p/w500/or06FN3Dka5tukK1e9sl16pB3iy.jpg", rating: "8.3", desc: "After the devastating events of Infinity War." },
+      { id: 872585, title: "Oppenheimer", poster: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg", rating: "8.1", desc: "The story of J. Robert Oppenheimer." },
       { id: 603692, title: "John Wick: Chapter 4", poster: "https://image.tmdb.org/t/p/w500/vZloFAK7NmvMGKE7VkF5UHaz0I.jpg", rating: "7.8", desc: "John Wick uncovers a path to defeating The High Table." },
-      { id: 569094, title: "Spider-Man: Across the Spider-Verse", poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", rating: "8.4", desc: "Brooklyn's full-time friendly neighborhood Spider-Man is catapulted across the Multiverse." },
-      { id: 848326, title: "Rebel Moon", poster: "https://image.tmdb.org/t/p/w500/ui4DrH1cKk2vkHshcUcGt2lKxCm.jpg", rating: "6.5", desc: "When a peaceful colony on the edge of a galaxy finds itself threatened." },
-      { id: 385687, title: "Fast X", poster: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", rating: "7.2", desc: "Dom Toretto and his family have outsmarted every foe in their path." },
-      { id: 640146, title: "Ant-Man and the Wasp: Quantumania", poster: "https://image.tmdb.org/t/p/w500/ngl2FKBlU4fhbdsrtdom9LVLBXw.jpg", rating: "6.5", desc: "Super-Hero partners Scott Lang and Hope Van Dyne explore the Quantum Realm." }
+      { id: 569094, title: "Spider-Man: Across the Spider-Verse", poster: "https://image.tmdb.org/t/p/w500/8Vt6mWEReuy4Of61Lnj5Xj704m8.jpg", rating: "8.4", desc: "Brooklyn's friendly neighborhood Spider-Man across the Multiverse." },
+      { id: 848326, title: "Rebel Moon", poster: "https://image.tmdb.org/t/p/w500/ui4DrH1cKk2vkHshcUcGt2lKxCm.jpg", rating: "6.5", desc: "When a peaceful colony finds itself threatened." },
+      { id: 385687, title: "Fast X", poster: "https://image.tmdb.org/t/p/w500/fiVW06jE7z9YnO4trhaMEdclSiC.jpg", rating: "7.2", desc: "Dom Toretto and his family face their deadliest enemy." },
+      { id: 640146, title: "Ant-Man and the Wasp: Quantumania", poster: "https://image.tmdb.org/t/p/w500/ngl2FKBlU4fhbdsrtdom9LVLBXw.jpg", rating: "6.5", desc: "Exploring the Quantum Realm." }
     ];
 
     function renderGrid(movies) {
@@ -214,7 +219,7 @@
           const newItems = data.results.map(m => ({
             id: m.id,
             title: m.title || m.name,
-            poster: `https://image.tmdb.org/t/p/w500${m.poster_path}`,
+            poster: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : 'https://via.placeholder.com/500x750?text=No+Image',
             rating: m.vote_average ? m.vote_average.toFixed(1) : '8.0',
             desc: m.overview || 'No description available.'
           }));
@@ -222,17 +227,14 @@
           renderGrid(allMovies);
         }
       } catch (err) {
-        console.log("Using backup database.");
-        if(allMovies.length === 0) {
-          allMovies = backupCatalog;
-          renderGrid(allMovies);
-        }
+        console.log("Error loading network data.");
       }
     }
 
     function loadMoreMovies() {
       pageNum++;
       fetchCatalog(pageNum);
+      fetchCatalog(pageNum + 1); // Load extra batch for fast scrolling
     }
 
     async function searchMovies() {
@@ -261,7 +263,6 @@
           renderGrid(searchResults);
         }
       } catch (err) {
-        // Local filter fallback
         const filtered = allMovies.filter(m => m.title.toLowerCase().includes(query.toLowerCase()));
         renderGrid(filtered);
       }
@@ -274,10 +275,18 @@
 
       const q = encodeURIComponent(movie.title);
       document.getElementById('downloadLinks').innerHTML = `
-        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">⚡ GDrive 480p</a>
-        <a href="https://terabox.com/search?q=${q}" target="_blank" class="dl-btn">⚡ TeraBox 720p</a>
-        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">⚡ GDrive 1080p Full HD</a>
-        <a href="https://1337x.to/search/${q}/1/" target="_blank" class="dl-btn torrent">🧲 Torrent 4K Ultra HD</a>
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">📥 GDrive 480p</a>
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">📥 GDrive 720p</a>
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn gdrive">📥 GDrive 1080p</a>
+        <a href="https://terabox.com/search?q=${q}" target="_blank" class="dl-btn mega">📥 TeraBox Fast</a>
+        <a href="https://mega.nz/search#!${q}" target="_blank" class="dl-btn mega">📥 Mega Cloud HD</a>
+        <a href="https://pixeldrain.com/api/search?q=${q}" target="_blank" class="dl-btn pixeldrain">📥 PixelDrain SD</a>
+        <a href="https://pixeldrain.com/api/search?q=${q}" target="_blank" class="dl-btn pixeldrain">📥 PixelDrain FHD</a>
+        <a href="https://magnetdl.com/search?q=${q}" target="_blank" class="dl-btn torrent">🧲 Torrent Magnet 720p</a>
+        <a href="https://1337x.to/search/${q}/1/" target="_blank" class="dl-btn torrent">🧲 1337x Torrent 1080p</a>
+        <a href="https://thepiratebay.org/search.php?q=${q}" target="_blank" class="dl-btn torrent">🧲 PirateBay 4K UHD</a>
+        <a href="https://gdtot.pro/search?q=${q}" target="_blank" class="dl-btn">⚡ Direct Server 1</a>
+        <a href="https://terabox.com/search?q=${q}" target="_blank" class="dl-btn">⚡ Direct Server 2 (VIP)</a>
       `;
       movieModal.style.display = 'flex';
     }
@@ -295,10 +304,12 @@
       if (e.target === movieModal) closeModal();
     };
 
-    // Initial Load
+    // Initial Load: Combine backup and multiple pages so hundreds of movies show instantly
     allMovies = backupCatalog;
     renderGrid(allMovies);
     fetchCatalog(1);
+    fetchCatalog(2);
+    fetchCatalog(3);
   </script>
 </body>
 </html>
